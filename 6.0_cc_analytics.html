@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics & Reports | Morison QMS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --teal:#0d7f7f;--teal-dark:#085f5f;--teal-deep:#053f3f;
+    --teal-light:#e6f4f4;--text:#1a2a2a;--text-muted:#5a7070;
+    --border:#d0e4e4;--bg:#f2f8f8;--white:#ffffff;
+    --red:#c0392b;--red-light:#fdf0ef;--green:#1a7a4a;--green-light:#eaf5ef;
+    --orange:#d4690a;--orange-light:#fff4e8;--blue:#1a4a7a;--blue-light:#e8f0f8;
+    --purple:#7a4a9a;--purple-light:#f5eefa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+  /* HEADER */
+  header{background:linear-gradient(135deg,var(--teal-deep),var(--teal-dark),var(--teal));height:58px;padding:0 32px;display:flex;align-items:center;gap:14px;box-shadow:0 3px 16px rgba(0,0,0,0.2);flex-shrink:0;}
+  .btn-back{background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);color:#fff;border-radius:8px;padding:0 14px;height:32px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;transition:background 0.12s;}
+  .btn-back:hover{background:rgba(255,255,255,0.24);}
+  .header-title{font-size:15px;font-weight:700;color:#fff;}
+  .header-sub{margin-left:auto;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.6);}
+
+  /* LAYOUT */
+  .layout{display:flex;flex:1;min-height:0;}
+  .sidebar{width:270px;flex-shrink:0;background:linear-gradient(180deg,var(--teal-deep) 0%,var(--teal-dark) 60%,var(--teal) 100%);padding:32px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:4px 0 24px rgba(0,0,0,0.15);overflow-y:auto;}
+  .sidebar-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:rgba(255,255,255,0.45);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;padding-left:4px;}
+  .side-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:11px;padding:14px;cursor:pointer;text-decoration:none;opacity:0;transform:translateX(-22px);animation:slideIn 0.38s ease forwards;transition:background 0.18s,border-color 0.18s,transform 0.18s;}
+  .side-card:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.28);transform:translateX(3px);}
+  .side-card.active{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.42);}
+  @keyframes slideIn{to{opacity:1;transform:translateX(0);}}
+  .side-icon{font-size:20px;width:38px;height:38px;background:rgba(255,255,255,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .side-text{flex:1;}
+  .side-title{font-size:13.5px;font-weight:600;color:#fff;line-height:1.2;margin-bottom:3px;}
+  .side-sub{font-size:11.5px;color:rgba(255,255,255,0.55);}
+  .side-arrow{font-size:18px;font-weight:700;color:rgba(255,255,255,0.35);transition:color 0.15s;}
+  .side-card:hover .side-arrow,.side-card.active .side-arrow{color:rgba(255,255,255,0.9);}
+
+  .content{flex:1;overflow-y:auto;padding:28px 32px 40px;}
+
+  /* FILTER BAR */
+  .filter-bar{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:24px;box-shadow:0 2px 10px rgba(13,127,127,0.06);}
+  .filter-bar-title{font-size:12px;font-weight:600;color:var(--teal-dark);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;}
+  .filter-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
+  .filter-group{display:flex;flex-direction:column;gap:5px;}
+  .filter-group label{font-size:11.5px;font-weight:600;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.5px;}
+  .filter-group select,
+  .filter-group input[type=date]{
+    height:38px;border:1.5px solid var(--border);border-radius:9px;
+    background:var(--white);font-family:'DM Sans',sans-serif;
+    font-size:13px;color:var(--text);padding:0 12px;outline:none;
+    box-shadow:0 1px 4px rgba(13,127,127,0.06);cursor:pointer;
+    min-width:150px;
+  }
+  .filter-group select:focus,
+  .filter-group input[type=date]:focus{border-color:var(--teal);}
+  .btn-apply{height:38px;background:linear-gradient(135deg,var(--teal-dark),var(--teal));color:#fff;border:none;border-radius:9px;padding:0 22px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;}
+  .btn-apply:hover{opacity:0.88;}
+  .btn-reset{height:38px;background:none;border:1.5px solid var(--border);border-radius:9px;padding:0 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;transition:background 0.12s;white-space:nowrap;}
+  .btn-reset:hover{background:var(--teal-light);color:var(--teal-dark);}
+
+  /* ACTIVE FILTER CHIPS */
+  .active-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .filter-chip{display:inline-flex;align-items:center;gap:6px;background:var(--teal-light);border:1px solid var(--teal-mid);color:var(--teal-dark);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;font-family:'DM Mono',monospace;}
+
+  /* STAT MINI CARDS */
+  .mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+  .mini-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:0 2px 8px rgba(13,127,127,0.05);opacity:0;animation:fadeUp 0.4s ease forwards;}
+  .mini-card:nth-child(1){animation-delay:0.05s;}
+  .mini-card:nth-child(2){animation-delay:0.10s;}
+  .mini-card:nth-child(3){animation-delay:0.15s;}
+  .mini-card:nth-child(4){animation-delay:0.20s;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .mini-label{font-size:10.5px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:6px;}
+  .mini-value{font-size:28px;font-weight:700;color:var(--teal-dark);line-height:1;}
+  .mini-card.c-green .mini-value{color:var(--green);}
+  .mini-card.c-orange .mini-value{color:var(--orange);}
+  .mini-card.c-red .mini-value{color:var(--red);}
+
+  /* CHART GRID */
+  .chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+  .chart-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:20px;}
+  .chart-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:0 2px 10px rgba(13,127,127,0.06);}
+  .chart-title{font-size:13px;font-weight:700;color:var(--teal-dark);margin-bottom:4px;}
+  .chart-sub{font-size:11.5px;color:var(--text-muted);margin-bottom:16px;}
+  .chart-box{position:relative;}
+
+  /* TABLE */
+  .data-table-wrap{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(13,127,127,0.06);margin-bottom:20px;}
+  .table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border);background:var(--bg);}
+  .table-header-title{font-size:14px;font-weight:700;color:var(--teal-dark);}
+  .table-count{font-size:12px;font-family:'DM Mono',monospace;background:var(--teal-light);color:var(--teal-dark);border-radius:10px;padding:2px 9px;font-weight:600;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{background:var(--teal-deep);color:#fff;padding:11px 18px;text-align:left;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;}
+  tbody td{padding:11px 18px;border-bottom:1px solid var(--bg);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:var(--teal-light);}
+  .cc-mono{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--teal-dark);}
+  .badge{display:inline-block;font-size:11px;font-weight:600;font-family:'DM Mono',monospace;border-radius:6px;padding:3px 8px;}
+  .badge.critical{background:#fdecea;color:#c0392b;}
+  .badge.major{background:var(--orange-light);color:var(--orange);}
+  .badge.minor{background:var(--teal-light);color:var(--teal-dark);}
+  .badge.approved{background:var(--blue-light);color:var(--blue);}
+  .badge.closed{background:var(--green-light);color:var(--green);}
+  .badge.verified{background:var(--purple-light);color:var(--purple);}
+  .badge.pending{background:var(--bg);color:var(--text-muted);border:1px solid var(--border);}
+
+  /* FOOTER */
+  footer{background:var(--white);border-top:1px solid var(--border);padding:12px 40px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .footer-left{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+  .footer-right{font-size:11.5px;color:var(--text-muted);}
+  .spinner{width:24px;height:24px;border:3px solid rgba(13,127,127,0.2);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 14px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-box{text-align:center;padding:60px 0;color:var(--text-muted);}
+  .empty-state{text-align:center;padding:48px;color:var(--text-muted);font-size:13.5px;}
+  .section-divider{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);font-family:'DM Mono',monospace;margin:28px 0 14px;}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="btn-back" href="2.0_cc_manager.html">← Back</a>
+  <span class="header-title">CC Manager</span>
+  <span class="header-sub">Morison QMS — 2026</span>
+</header>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-label">Modules</div>
+    <a class="side-card" href="3.0_Register_cc.html" style="animation-delay:0.05s">
+      <div class="side-icon">📝</div>
+      <div class="side-text"><div class="side-title">Register Change Control</div><div class="side-sub">Initiate a new CC record</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+    <a class="side-card" href="4.0_update_cc_progress.html" style="animation-delay:0.13s">
+      <div class="side-icon">🔄</div>
+      <div class="side-text"><div class="side-title">Update CC Progress</div><div class="side-sub">Edit status &amp; milestones</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+    <a class="side-card" href="5.0_cc_dashboard.html" style="animation-delay:0.21s">
+      <div class="side-icon">📊</div>
+      <div class="side-text"><div class="side-title">CC Dashboard</div><div class="side-sub">Overview of all CC records</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+    <a class="side-card active" href="6.0_cc_analytics.html" style="animation-delay:0.29s">
+      <div class="side-icon">📈</div>
+      <div class="side-text"><div class="side-title">Analytics &amp; Reports</div><div class="side-sub">Trends &amp; performance data</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+  </div>
+
+  <div class="content">
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <div class="filter-bar-title">🔎 Filters</div>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>From Date</label>
+          <input type="date" id="fDateFrom">
+        </div>
+        <div class="filter-group">
+          <label>To Date</label>
+          <input type="date" id="fDateTo">
+        </div>
+        <div class="filter-group">
+          <label>Department</label>
+          <select id="fDept">
+            <option value="">All Departments</option>
+            <option>Quality Assurance</option>
+            <option>Quality Control</option>
+            <option>Production</option>
+            <option>Technical Services</option>
+            <option>Analytical Development</option>
+            <option>Microbiology</option>
+            <option>Warehouse</option>
+            <option>Engineering</option>
+            <option>HR</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Category</label>
+          <select id="fCategory">
+            <option value="">All Categories</option>
+            <option value="Critical">Critical</option>
+            <option value="Major">Major</option>
+            <option value="Minor">Minor</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="fStatus">
+            <option value="">All Statuses</option>
+            <option value="approved">Approved</option>
+            <option value="closed">Closed</option>
+            <option value="verified">Verified</option>
+            <option value="pending">Pending Approval</option>
+          </select>
+        </div>
+        <button class="btn-apply" onclick="applyFilters()">Apply</button>
+        <button class="btn-reset" onclick="resetFilters()">Reset</button>
+      </div>
+    </div>
+
+    <div id="analyticsContent">
+      <div class="loading-box">
+        <div class="spinner"></div>
+        Loading analytics…
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <span class="footer-left">QMS v2.0 &nbsp;|&nbsp; Morison Limited, Sri Lanka</span>
+  <span class="footer-right">GMP Compliant &nbsp;·&nbsp; Internal Use Only</span>
+</footer>
+
+<script>
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSt2XgFUZI6qkxmhPgwM2eyXjZfRoPNY7G5f5DziKqgYxUCWWg409PAGR0hiARGU74/exec';
+
+  let allRecords    = [];
+  let filtered      = [];
+  let chartInstances= {};
+
+  // ── LOAD ──────────────────────────────────────────────────────
+  function loadData() {
+    fetch(APPS_SCRIPT_URL + '?action=getCCList')
+      .then(r => r.json())
+      .then(data => {
+        allRecords = data.records || [];
+        filtered   = [...allRecords];
+        render();
+      })
+      .catch(() => {
+        document.getElementById('analyticsContent').innerHTML =
+          '<div class="loading-box">⚠️ Could not connect to Google Sheet.</div>';
+      });
+  }
+
+  // ── FILTER ────────────────────────────────────────────────────
+  function applyFilters() {
+    const dateFrom = document.getElementById('fDateFrom').value;
+    const dateTo   = document.getElementById('fDateTo').value;
+    const dept     = document.getElementById('fDept').value;
+    const category = document.getElementById('fCategory').value;
+    const status   = document.getElementById('fStatus').value;
+
+    filtered = allRecords.filter(r => {
+      // Date filter uses dateInitiated from registration
+      if (dateFrom && r.dateInitiated && r.dateInitiated < dateFrom) return false;
+      if (dateTo   && r.dateInitiated && r.dateInitiated > dateTo)   return false;
+      if (dept     && r.department !== dept)   return false;
+      if (category && r.changeCategory !== category) return false;
+      if (status === 'approved' && r.approvalStatus     !== 'Approved') return false;
+      if (status === 'closed'   && r.closureStatus      !== 'Closed')   return false;
+      if (status === 'verified' && r.verificationStatus !== 'Verified') return false;
+      if (status === 'pending'  && (r.approvalStatus === 'Approved'))   return false;
+      return true;
+    });
+
+    render();
+  }
+
+  function resetFilters() {
+    document.getElementById('fDateFrom').value   = '';
+    document.getElementById('fDateTo').value     = '';
+    document.getElementById('fDept').value       = '';
+    document.getElementById('fCategory').value   = '';
+    document.getElementById('fStatus').value     = '';
+    filtered = [...allRecords];
+    render();
+  }
+
+  // ── ACTIVE FILTER CHIPS ───────────────────────────────────────
+  function buildChips() {
+    const chips = [];
+    if (document.getElementById('fDateFrom').value || document.getElementById('fDateTo').value) {
+      const f = document.getElementById('fDateFrom').value || '…';
+      const t = document.getElementById('fDateTo').value   || '…';
+      chips.push(`📅 ${f} → ${t}`);
+    }
+    if (document.getElementById('fDept').value)     chips.push('🏢 ' + document.getElementById('fDept').value);
+    if (document.getElementById('fCategory').value) chips.push('⚡ ' + document.getElementById('fCategory').value);
+    if (document.getElementById('fStatus').value)   chips.push('✅ ' + document.getElementById('fStatus').value);
+    return chips;
+  }
+
+  // ── RENDER ────────────────────────────────────────────────────
+  function render() {
+    // destroy existing charts
+    Object.values(chartInstances).forEach(c => c.destroy());
+    chartInstances = {};
+
+    const chips = buildChips();
+    let html = '';
+
+    if (chips.length > 0) {
+      html += `<div class="active-filters">${chips.map(c => `<span class="filter-chip">${c}</span>`).join('')}</div>`;
+    }
+
+    const total    = filtered.length;
+    const approved = filtered.filter(r => r.approvalStatus     === 'Approved').length;
+    const closed   = filtered.filter(r => r.closureStatus      === 'Closed').length;
+    const verified = filtered.filter(r => r.verificationStatus === 'Verified').length;
+
+    // ── MINI STAT CARDS ──
+    html += `<div class="mini-stats">
+      <div class="mini-card"><div class="mini-label">Total CCs</div><div class="mini-value">${total}</div></div>
+      <div class="mini-card c-green"><div class="mini-label">Approved</div><div class="mini-value">${approved}</div></div>
+      <div class="mini-card c-green"><div class="mini-label">Closed</div><div class="mini-value">${closed}</div></div>
+      <div class="mini-card c-green"><div class="mini-label">Verified</div><div class="mini-value">${verified}</div></div>
+    </div>`;
+
+    // ── CHARTS ROW ──
+    html += `<div class="section-divider">Charts</div>`;
+    html += `<div class="chart-grid-3">
+      <div class="chart-card">
+        <div class="chart-title">Status Breakdown</div>
+        <div class="chart-sub">Distribution of CC statuses</div>
+        <div class="chart-box" style="height:230px"><canvas id="chartStatus"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Category Breakdown</div>
+        <div class="chart-sub">Critical / Major / Minor split</div>
+        <div class="chart-box" style="height:230px"><canvas id="chartCategory"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Department-wise Counts</div>
+        <div class="chart-sub">CCs per department</div>
+        <div class="chart-box" style="height:230px"><canvas id="chartDept"></canvas></div>
+      </div>
+    </div>`;
+
+    html += `<div class="chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Monthly Trend</div>
+        <div class="chart-sub">CCs registered per month</div>
+        <div class="chart-box" style="height:220px"><canvas id="chartTrend"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Category Trend</div>
+        <div class="chart-sub">Critical / Major / Minor over months</div>
+        <div class="chart-box" style="height:220px"><canvas id="chartCatTrend"></canvas></div>
+      </div>
+    </div>`;
+
+
+
+    document.getElementById('analyticsContent').innerHTML = html;
+
+    // ── BUILD CHARTS ──
+    if (total > 0) buildCharts();
+  }
+
+  // ── CHARTS ────────────────────────────────────────────────────
+  const C = {
+    teal:   '#0d7f7f', tealLight:'#b3dada',
+    green:  '#1a7a4a', greenLight:'#a3d9b8',
+    blue:   '#1a4a7a', blueLight:'#a3beda',
+    purple: '#7a4a9a', purpleLight:'#c9a3e0',
+    orange: '#d4690a', orangeLight:'#f5c49a',
+    red:    '#c0392b', redLight:'#f5a3a3',
+    grey:   '#aac2c2',
+  };
+
+  function buildCharts() {
+    const defs = { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ font:{ family:"'DM Sans'" }, boxWidth:14 } } } };
+
+    // ── Status pie ──
+    const notApproved = filtered.filter(r => r.approvalStatus !== 'Approved').length;
+    const approvedNotClosed = filtered.filter(r => r.approvalStatus === 'Approved' && r.closureStatus !== 'Closed').length;
+    const closedNotVerified = filtered.filter(r => r.closureStatus  === 'Closed'   && r.verificationStatus !== 'Verified').length;
+    const verifiedCount     = filtered.filter(r => r.verificationStatus === 'Verified').length;
+
+    chartInstances.status = new Chart(document.getElementById('chartStatus'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Pending Approval','Approved','Closed','Verified'],
+        datasets:[{ data:[notApproved, approvedNotClosed, closedNotVerified, verifiedCount],
+          backgroundColor:[C.grey, C.blueLight, C.greenLight, C.purple],
+          borderColor:[C.grey, C.blue, C.green, C.purple],
+          borderWidth:2, hoverOffset:6
+        }]
+      },
+      options: { ...defs, cutout:'62%' }
+    });
+
+    // ── Category pie ──
+    const cats = { Critical:0, Major:0, Minor:0, Other:0 };
+    filtered.forEach(r => { const c = r.changeCategory||'Other'; if (cats[c]!==undefined) cats[c]++; else cats.Other++; });
+
+    chartInstances.category = new Chart(document.getElementById('chartCategory'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(cats).filter(k => cats[k]>0),
+        datasets:[{ data: Object.keys(cats).filter(k=>cats[k]>0).map(k=>cats[k]),
+          backgroundColor:[C.red, C.orange, C.teal, C.grey],
+          borderColor:[C.red, C.orange, C.teal, C.grey],
+          borderWidth:2, hoverOffset:6
+        }]
+      },
+      options: { ...defs, cutout:'62%' }
+    });
+
+    // ── Department bar ──
+    const deptMap = {};
+    filtered.forEach(r => {
+      const d = r.department||'Unassigned';
+      deptMap[d] = (deptMap[d]||0) + 1;
+    });
+    const deptLabels = Object.keys(deptMap);
+    const deptVals   = deptLabels.map(d => deptMap[d]);
+
+    chartInstances.dept = new Chart(document.getElementById('chartDept'), {
+      type: 'bar',
+      data: {
+        labels: deptLabels,
+        datasets:[{ label:'CCs', data:deptVals,
+          backgroundColor: C.tealLight, borderColor: C.teal, borderWidth:2, borderRadius:6
+        }]
+      },
+      options: { ...defs, indexAxis:'y',
+        plugins:{ legend:{ display:false } },
+        scales:{ x:{ ticks:{ font:{ family:"'DM Mono'" }, color:'#5a7070' }, grid:{ color:'#e6f4f4' } },
+                 y:{ ticks:{ font:{ family:"'DM Mono'", size:10 }, color:'#5a7070' }, grid:{ display:false } } }
+      }
+    });
+
+    // ── Monthly trend ──
+    const monthMap = {};
+    filtered.forEach(r => {
+      if (!r.dateInitiated) return;
+      const mo = r.dateInitiated.slice(0,7); // YYYY-MM
+      monthMap[mo] = (monthMap[mo]||0) + 1;
+    });
+    const months = Object.keys(monthMap).sort();
+    const monthLabels = months.map(m => {
+      const [y,mo] = m.split('-');
+      return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)-1] + ' ' + y.slice(2);
+    });
+
+    chartInstances.trend = new Chart(document.getElementById('chartTrend'), {
+      type: 'line',
+      data: {
+        labels: monthLabels,
+        datasets:[{ label:'CCs Registered', data:months.map(m=>monthMap[m]),
+          borderColor:C.teal, backgroundColor:'rgba(13,127,127,0.08)',
+          borderWidth:2.5, pointBackgroundColor:C.teal, pointRadius:5,
+          fill:true, tension:0.35
+        }]
+      },
+      options: { ...defs,
+        plugins:{ legend:{ display:false } },
+        scales:{ x:{ ticks:{ font:{ family:"'DM Mono'", size:10 }, color:'#5a7070' }, grid:{ color:'#e6f4f4' } },
+                 y:{ ticks:{ font:{ family:"'DM Mono'" }, color:'#5a7070', stepSize:1 }, grid:{ color:'#e6f4f4' } } }
+      }
+    });
+
+    // ── Category trend (stacked line) ──
+    const catMonthMap = { Critical:{}, Major:{}, Minor:{} };
+    filtered.forEach(r => {
+      if (!r.dateInitiated || !r.changeCategory) return;
+      const mo = r.dateInitiated.slice(0,7);
+      if (catMonthMap[r.changeCategory]) catMonthMap[r.changeCategory][mo] = (catMonthMap[r.changeCategory][mo]||0) + 1;
+    });
+    const allMonths = [...new Set(filtered.filter(r=>r.dateInitiated).map(r=>r.dateInitiated.slice(0,7)))].sort();
+    const allMonthLabels = allMonths.map(m => {
+      const [y,mo] = m.split('-');
+      return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)-1] + ' ' + y.slice(2);
+    });
+
+    chartInstances.catTrend = new Chart(document.getElementById('chartCatTrend'), {
+      type: 'line',
+      data: {
+        labels: allMonthLabels,
+        datasets: [
+          { label:'Critical', data:allMonths.map(m=>catMonthMap.Critical[m]||0), borderColor:C.red,    backgroundColor:'rgba(192,57,43,0.07)',  borderWidth:2.5, pointRadius:4, fill:true, tension:0.35 },
+          { label:'Major',    data:allMonths.map(m=>catMonthMap.Major[m]||0),    borderColor:C.orange, backgroundColor:'rgba(212,105,10,0.07)', borderWidth:2.5, pointRadius:4, fill:true, tension:0.35 },
+          { label:'Minor',    data:allMonths.map(m=>catMonthMap.Minor[m]||0),    borderColor:C.teal,   backgroundColor:'rgba(13,127,127,0.07)', borderWidth:2.5, pointRadius:4, fill:true, tension:0.35 },
+        ]
+      },
+      options: { ...defs,
+        scales:{ x:{ ticks:{ font:{ family:"'DM Mono'", size:10 }, color:'#5a7070' }, grid:{ color:'#e6f4f4' } },
+                 y:{ ticks:{ font:{ family:"'DM Mono'" }, color:'#5a7070', stepSize:1 }, grid:{ color:'#e6f4f4' } } }
+      }
+    });
+  }
+
+  window.addEventListener('load', loadData);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Action Item Tracker | Morison QMS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:#0d7f7f;--teal-dark:#085f5f;--teal-deep:#053f3f;
+    --teal-light:#e6f4f4;--teal-mid:#b3dada;
+    --text:#1a2a2a;--text-muted:#5a7070;
+    --border:#d0e4e4;--bg:#f2f8f8;--white:#ffffff;
+    --red:#c0392b;--red-light:#fdf0ef;
+    --green:#1a7a4a;--green-light:#eaf5ef;
+    --orange:#d4690a;--orange-light:#fff4e8;
+    --blue:#1a4a7a;--blue-light:#e8f0f8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+  /* HEADER */
+  header{background:linear-gradient(135deg,var(--teal-deep),var(--teal-dark),var(--teal));height:58px;padding:0 32px;display:flex;align-items:center;gap:14px;box-shadow:0 3px 16px rgba(0,0,0,0.2);flex-shrink:0;}
+  .btn-back{background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);color:#fff;border-radius:8px;padding:0 14px;height:32px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;transition:background 0.12s;}
+  .btn-back:hover{background:rgba(255,255,255,0.24);}
+  .header-title{font-size:15px;font-weight:700;color:#fff;}
+  .header-sub{margin-left:auto;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.6);}
+
+  /* LAYOUT */
+  .layout{display:flex;flex:1;min-height:0;}
+
+  /* SIDEBAR */
+  .sidebar{width:270px;flex-shrink:0;background:linear-gradient(180deg,var(--teal-deep) 0%,var(--teal-dark) 60%,var(--teal) 100%);padding:32px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:4px 0 24px rgba(0,0,0,0.15);overflow-y:auto;}
+  .sidebar-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:rgba(255,255,255,0.45);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;padding-left:4px;}
+  .side-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:11px;padding:14px;text-decoration:none;opacity:0;transform:translateX(-22px);animation:slideIn 0.38s ease forwards;transition:background 0.18s,border-color 0.18s,transform 0.18s;}
+  .side-card:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.28);transform:translateX(3px);}
+  .side-card.active{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.42);}
+  @keyframes slideIn{to{opacity:1;transform:translateX(0);}}
+  .side-icon{font-size:20px;width:38px;height:38px;background:rgba(255,255,255,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .side-text{flex:1;}
+  .side-title{font-size:13.5px;font-weight:600;color:#fff;line-height:1.2;margin-bottom:3px;}
+  .side-sub{font-size:11.5px;color:rgba(255,255,255,0.55);}
+  .side-arrow{font-size:18px;font-weight:700;color:rgba(255,255,255,0.35);transition:color 0.15s;}
+  .side-card:hover .side-arrow,.side-card.active .side-arrow{color:rgba(255,255,255,0.9);}
+
+  /* CONTENT */
+  .content{flex:1;overflow-y:auto;padding:28px 32px 40px;}
+
+  /* FILTER BAR */
+  .filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;}
+  .filter-search{flex:1;min-width:180px;height:38px;border:1.5px solid var(--border);border-radius:9px;padding:0 14px 0 36px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235a7070' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 11px center;transition:border-color 0.15s;}
+  .filter-search:focus{border-color:var(--teal);background-color:var(--white);}
+  .filter-select{height:38px;border:1.5px solid var(--border);border-radius:9px;padding:0 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;background:var(--bg);cursor:pointer;transition:border-color 0.15s;min-width:160px;}
+  .filter-select:focus{border-color:var(--teal);}
+  .filter-count{font-size:11.5px;font-family:'DM Mono',monospace;color:var(--text-muted);white-space:nowrap;margin-left:auto;}
+
+  /* CC TABLE */
+  .table-wrap{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(13,127,127,0.06);}
+  .table-head-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--bg);}
+  .table-head-title{font-size:14px;font-weight:700;color:var(--teal-dark);}
+  .badge-count{font-size:11.5px;font-family:'DM Mono',monospace;font-weight:600;border-radius:10px;padding:2px 9px;background:var(--teal-light);color:var(--teal-dark);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{background:var(--teal-deep);color:#fff;padding:11px 18px;text-align:left;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;}
+  tbody td{padding:12px 18px;border-bottom:1px solid var(--bg);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:var(--teal-light);}
+  .cc-mono{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--teal-dark);}
+
+  /* PROGRESS PILL */
+  .prog-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;font-family:'DM Mono',monospace;border-radius:20px;padding:4px 12px;}
+  .prog-pill.all-done{background:var(--green-light);color:var(--green);}
+  .prog-pill.partial{background:var(--orange-light);color:var(--orange);}
+  .prog-pill.none-done{background:var(--bg);color:var(--text-muted);border:1px solid var(--border);}
+
+  /* UPDATE BUTTON */
+  .btn-update{height:32px;background:linear-gradient(135deg,var(--teal-dark),var(--teal));color:#fff;border:none;border-radius:8px;padding:0 16px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:opacity 0.15s;white-space:nowrap;}
+  .btn-update:hover{opacity:0.85;}
+  .btn-update.done{background:linear-gradient(135deg,var(--green),#21a660);cursor:default;opacity:0.7;}
+
+  /* DETAIL PANEL */
+  .detail-panel{background:var(--white);border:1px solid var(--border);border-radius:14px;box-shadow:0 2px 16px rgba(13,127,127,0.08);animation:fadeUp 0.25s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .detail-header{display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:1px solid var(--border);background:var(--bg);border-radius:14px 14px 0 0;}
+  .detail-back{height:32px;background:none;border:1.5px solid var(--border);border-radius:8px;padding:0 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;transition:background 0.12s;display:flex;align-items:center;gap:6px;}
+  .detail-back:hover{background:var(--teal-light);color:var(--teal-dark);}
+  .detail-cc-num{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--teal-dark);}
+  .detail-cc-title{font-size:13px;color:var(--text);flex:1;}
+  .detail-cc-dept{font-size:11.5px;font-family:'DM Mono',monospace;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:3px 10px;}
+
+  .detail-body{padding:24px;}
+
+  /* ACTION ITEM CARDS */
+  .ai-list{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
+  .ai-card{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;border:1.5px solid var(--border);border-radius:11px;transition:border-color 0.15s,background 0.15s;cursor:pointer;}
+  .ai-card:hover:not(.ai-locked){border-color:var(--teal-mid);background:var(--teal-light);}
+  .ai-card.ai-checked{border-color:var(--teal-mid);background:var(--teal-light);}
+  .ai-card.ai-locked{cursor:default;background:var(--green-light);border-color:#a3d9b8;}
+
+  /* CUSTOM CHECKBOX */
+  .ai-checkbox-wrap{flex-shrink:0;margin-top:1px;}
+  .ai-checkbox{width:20px;height:20px;border-radius:5px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:var(--white);}
+  .ai-card.ai-checked .ai-checkbox{background:var(--teal);border-color:var(--teal);}
+  .ai-card.ai-locked  .ai-checkbox{background:var(--green);border-color:var(--green);}
+  .ai-checkbox svg{display:none;}
+  .ai-card.ai-checked .ai-checkbox svg,
+  .ai-card.ai-locked  .ai-checkbox svg{display:block;}
+
+  .ai-content{flex:1;}
+  .ai-index{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:4px;}
+  .ai-text{font-size:13.5px;color:var(--text);line-height:1.5;}
+  .ai-card.ai-locked .ai-text{color:var(--green);text-decoration:line-through;text-decoration-color:rgba(26,122,74,0.4);}
+  .ai-locked-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-family:'DM Mono',monospace;color:var(--green);margin-top:5px;}
+  .ai-completed-date{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);margin-top:3px;}
+
+  /* SAVE ROW */
+  .save-row{display:flex;align-items:center;gap:12px;}
+  .btn-save{height:40px;background:linear-gradient(135deg,var(--teal-dark),var(--teal));color:#fff;border:none;border-radius:10px;padding:0 28px;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:opacity 0.15s;}
+  .btn-save:hover{opacity:0.88;}
+  .btn-save:disabled{opacity:0.5;cursor:not-allowed;}
+
+  /* ALERTS */
+  .alert{padding:13px 18px;border-radius:10px;font-size:13px;font-weight:500;display:none;align-items:center;gap:10px;}
+  .alert.success{background:var(--green-light);color:var(--green);border:1px solid #a3d9b8;display:flex;}
+  .alert.error  {background:var(--red-light);color:var(--red);border:1px solid #f5a3a3;display:flex;}
+
+  .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-box{text-align:center;padding:60px 0;color:var(--text-muted);}
+  .loading-box .sp{width:26px;height:26px;border:3px solid var(--teal-mid);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 14px;}
+  .empty-state{text-align:center;padding:48px;color:var(--text-muted);}
+  .empty-state .icon{font-size:34px;margin-bottom:12px;}
+
+  /* FOOTER */
+  footer{background:var(--white);border-top:1px solid var(--border);padding:12px 40px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .footer-left{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+  .footer-right{font-size:11.5px;color:var(--text-muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="btn-back" href="7.0_action_item_manager.html">← Back</a>
+  <span class="header-title">Action Item Manager</span>
+  <span class="header-sub">Morison QMS — 2026</span>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-label">Modules</div>
+    <a class="side-card" href="8.0_action_item_registration.html" style="animation-delay:0.05s">
+      <div class="side-icon">📋</div>
+      <div class="side-text"><div class="side-title">Action Item Registration</div><div class="side-sub">Register a new action item</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+    <a class="side-card active" href="9.0_action_item_tracker.html" style="animation-delay:0.13s">
+      <div class="side-icon">📌</div>
+      <div class="side-text"><div class="side-title">Action Item Tracker</div><div class="side-sub">Monitor &amp; update progress</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- VIEW: CC LIST -->
+    <div id="viewList">
+      <div class="filter-bar">
+        <input class="filter-search" type="text" id="fSearch" placeholder="Search by CC number or title…" oninput="renderList()">
+        <select class="filter-select" id="fDept" onchange="renderList()">
+          <option value="">All Departments</option>
+        </select>
+        <select class="filter-select" id="fProgress" onchange="renderList()">
+          <option value="">All Progress</option>
+          <option value="none">Not Started</option>
+          <option value="partial">In Progress</option>
+          <option value="all">Completed</option>
+        </select>
+        <span class="filter-count" id="filterCount"></span>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-head-bar">
+          <span class="table-head-title">📌 Action Item Tracker</span>
+          <span class="badge-count" id="listBadge">—</span>
+        </div>
+        <div id="listContent">
+          <div class="loading-box"><div class="sp"></div>Loading records…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: DETAIL -->
+    <div id="viewDetail" style="display:none">
+      <div class="detail-panel">
+        <div class="detail-header">
+          <button class="detail-back" onclick="showList()">← Back to List</button>
+          <div style="flex:1;min-width:0;">
+            <div class="detail-cc-num" id="dCCNum">—</div>
+            <div class="detail-cc-title" id="dCCTitle">—</div>
+          </div>
+          <span class="detail-cc-dept" id="dCCDept">—</span>
+        </div>
+        <div class="detail-body">
+          <div id="alertBox" class="alert" style="margin-bottom:18px;"></div>
+          <div class="ai-list" id="aiList"></div>
+          <div class="save-row">
+            <button class="btn-save" id="btnSave" onclick="saveProgress()">
+              <span id="saveLabel">Save Progress</span>
+            </button>
+            <span id="saveHint" style="font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <span class="footer-left">QMS v2.0 &nbsp;|&nbsp; Morison Limited, Sri Lanka</span>
+  <span class="footer-right">GMP Compliant &nbsp;·&nbsp; Internal Use Only</span>
+</footer>
+
+<script>
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzIlyxGa2Y4BKL6iB0wUPA-cOtjShBhqRnPtVCa90p539PAdUUucMkNiv-0WV9RVaPZ/exec';
+
+  let allCCs       = [];   // [{ccNumber, title, department, items:[{index,text,status,completedDate}]}]
+  let currentCC    = null;
+  let isSaving     = false;
+
+  // ── LOAD ──────────────────────────────────────────────────
+  function loadData() {
+    fetch(APPS_SCRIPT_URL + '?action=getActionItemTracker')
+      .then(r => r.json())
+      .then(data => {
+        allCCs = data.ccs || [];
+
+        // Populate department filter from actual data
+        const depts = [...new Set(allCCs.map(c => c.department).filter(Boolean))].sort();
+        const sel = document.getElementById('fDept');
+        sel.innerHTML = '<option value="">All Departments</option>' +
+          depts.map(d => `<option>${d}</option>`).join('');
+
+        renderList();
+      })
+      .catch(() => {
+        document.getElementById('listContent').innerHTML =
+          '<div class="empty-state"><div class="icon">⚠️</div><p>Could not connect to Google Sheet.</p></div>';
+      });
+  }
+
+  // ── RENDER LIST ───────────────────────────────────────────
+  function renderList() {
+    const search   = (document.getElementById('fSearch').value || '').toLowerCase();
+    const dept     = document.getElementById('fDept').value;
+    const progress = document.getElementById('fProgress').value;
+
+    const filtered = allCCs.filter(cc => {
+      if (search && !cc.ccNumber.toLowerCase().includes(search) &&
+          !(cc.title||'').toLowerCase().includes(search)) return false;
+      if (dept && cc.department !== dept) return false;
+      if (progress) {
+        const key = getProgressKey(cc);
+        if (key !== progress) return false;
+      }
+      return true;
+    });
+
+    document.getElementById('filterCount').textContent =
+      filtered.length + ' of ' + allCCs.length + ' records';
+    document.getElementById('listBadge').textContent =
+      filtered.length + ' CC' + (filtered.length !== 1 ? 's' : '');
+
+    const wrap = document.getElementById('listContent');
+
+    if (allCCs.length === 0) {
+      wrap.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No action items have been registered yet.</p></div>';
+      return;
+    }
+    if (filtered.length === 0) {
+      wrap.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>No records match the current filters.</p></div>';
+      return;
+    }
+
+    let html = `<table><thead><tr>
+      <th>CC Number</th><th>Title</th><th>Department</th>
+      <th>Action Items</th><th>Progress</th><th style="width:110px;text-align:center;">Action</th>
+    </tr></thead><tbody>`;
+
+    filtered.forEach(cc => {
+      const total     = cc.items.length;
+      const completed = cc.items.filter(i => i.status === 'Completed').length;
+      const key       = getProgressKey(cc);
+      const allDone   = key === 'all';
+
+      let pill;
+      if (key === 'all')     pill = `<span class="prog-pill all-done">✔ ${completed}/${total} Done</span>`;
+      else if (key === 'partial') pill = `<span class="prog-pill partial">⏳ ${completed}/${total} Done</span>`;
+      else                   pill = `<span class="prog-pill none-done">— ${total} Pending</span>`;
+
+      const btnLabel = allDone ? 'Completed' : 'Update';
+      const btnClass = allDone ? 'btn-update done' : 'btn-update';
+      const btnClick = allDone ? '' : `onclick="openDetail('${cc.ccNumber}')"`;
+
+      html += `<tr>
+        <td><span class="cc-mono">${cc.ccNumber}</span></td>
+        <td>${cc.title || '—'}</td>
+        <td>${cc.department || '—'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:12px;">${total} item${total!==1?'s':''}</td>
+        <td>${pill}</td>
+        <td style="text-align:center;">
+          <button class="${btnClass}" ${btnClick}>${btnLabel}</button>
+        </td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  }
+
+  function getProgressKey(cc) {
+    const total     = cc.items.length;
+    const completed = cc.items.filter(i => i.status === 'Completed').length;
+    if (completed === 0)     return 'none';
+    if (completed === total) return 'all';
+    return 'partial';
+  }
+
+  // ── OPEN DETAIL ───────────────────────────────────────────
+  function openDetail(ccNumber) {
+    currentCC = allCCs.find(c => c.ccNumber === ccNumber);
+    if (!currentCC) return;
+
+    document.getElementById('dCCNum').textContent   = currentCC.ccNumber;
+    document.getElementById('dCCTitle').textContent = currentCC.title || '—';
+    document.getElementById('dCCDept').textContent  = currentCC.department || '—';
+
+    document.getElementById('alertBox').style.display = 'none';
+    renderActionItems();
+    updateSaveHint();
+
+    document.getElementById('viewList').style.display   = 'none';
+    document.getElementById('viewDetail').style.display = 'block';
+    window.scrollTo(0,0);
+  }
+
+  function showList() {
+    document.getElementById('viewDetail').style.display = 'none';
+    document.getElementById('viewList').style.display   = 'block';
+    renderList(); // refresh to show updated progress
+  }
+
+  function renderActionItems() {
+    const list = document.getElementById('aiList');
+    if (!currentCC || currentCC.items.length === 0) {
+      list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No action items found for this CC.</p></div>';
+      return;
+    }
+
+    let html = '';
+    currentCC.items.forEach((item, idx) => {
+      const locked  = item.status === 'Completed';
+      const checked = locked || item._checked;  // _checked = user ticked this session
+
+      let extraInfo = '';
+      if (locked && item.completedDate) {
+        extraInfo = `<div class="ai-completed-date">Completed on ${item.completedDate}</div>`;
+      }
+      if (locked) {
+        extraInfo += `<div class="ai-locked-badge">🔒 Locked — Completed</div>`;
+      }
+
+      html += `
+      <div class="ai-card ${checked ? 'ai-checked' : ''} ${locked ? 'ai-locked' : ''}"
+           id="ai-card-${idx}"
+           onclick="${locked ? '' : `toggleItem(${idx})`}">
+        <div class="ai-checkbox-wrap">
+          <div class="ai-checkbox">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="ai-content">
+          <div class="ai-index">Action Item ${idx + 1}</div>
+          <div class="ai-text">${item.text}</div>
+          ${extraInfo}
+        </div>
+      </div>`;
+    });
+
+    list.innerHTML = html;
+  }
+
+  function toggleItem(idx) {
+    if (!currentCC) return;
+    const item = currentCC.items[idx];
+    if (item.status === 'Completed') return; // locked
+
+    item._checked = !item._checked;
+
+    const card = document.getElementById('ai-card-' + idx);
+    if (item._checked) {
+      card.classList.add('ai-checked');
+    } else {
+      card.classList.remove('ai-checked');
+    }
+    updateSaveHint();
+  }
+
+  function updateSaveHint() {
+    if (!currentCC) return;
+    const newlyChecked = currentCC.items.filter(i => i._checked && i.status !== 'Completed').length;
+    const hint = document.getElementById('saveHint');
+    if (newlyChecked > 0) {
+      hint.textContent = newlyChecked + ' item' + (newlyChecked !== 1 ? 's' : '') + ' will be marked as completed';
+      hint.style.color = 'var(--teal-dark)';
+    } else {
+      hint.textContent = 'Tick items above to mark them as completed';
+      hint.style.color = 'var(--text-muted)';
+    }
+  }
+
+  // ── SAVE PROGRESS ─────────────────────────────────────────
+  function saveProgress() {
+    if (isSaving || !currentCC) return;
+
+    const toComplete = currentCC.items
+      .map((item, idx) => ({ idx, item }))
+      .filter(({ item }) => item._checked && item.status !== 'Completed');
+
+    if (toComplete.length === 0) {
+      showAlert('error', '⚠ Please tick at least one action item to mark as completed.');
+      return;
+    }
+
+    isSaving = true;
+    const btn   = document.getElementById('btnSave');
+    const label = document.getElementById('saveLabel');
+    btn.disabled = true;
+    label.innerHTML = '<span class="spinner"></span> Saving…';
+    document.getElementById('alertBox').style.display = 'none';
+
+    const payload = {
+      action:    'updateActionItemStatus',
+      ccNumber:  currentCC.ccNumber,
+      completed: toComplete.map(({ idx }) => idx + 1), // 1-based indices
+    };
+
+    fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          // Lock the items locally
+          const today = new Date().toISOString().slice(0, 10);
+          toComplete.forEach(({ item }) => {
+            item.status        = 'Completed';
+            item.completedDate = today;
+            item._checked      = false;
+          });
+
+          renderActionItems();
+          updateSaveHint();
+          showAlert('success', `✔ ${toComplete.length} action item${toComplete.length !== 1 ? 's' : ''} marked as completed and locked.`);
+        } else {
+          showAlert('error', '✖ ' + (data.message || 'Save failed. Please try again.'));
+        }
+      })
+      .catch(() => showAlert('error', '✖ Could not connect. Please try again.'))
+      .finally(() => {
+        isSaving       = false;
+        btn.disabled   = false;
+        label.textContent = 'Save Progress';
+      });
+  }
+
+  function showAlert(type, msg) {
+    const box = document.getElementById('alertBox');
+    box.className = 'alert ' + type;
+    box.innerHTML = msg;
+    box.style.display = 'flex';
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  window.addEventListener('load', loadData);
+</script>
+
+</body>
+</html>

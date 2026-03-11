@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CC Manager | Morison QMS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:       #0d7f7f;
+    --teal-dark:  #085f5f;
+    --teal-deep:  #053f3f;
+    --teal-light: #e6f4f4;
+    --teal-mid:   #b3dada;
+    --text:       #1a2a2a;
+    --text-muted: #5a7070;
+    --border:     #d0e4e4;
+    --bg:         #f2f8f8;
+    --white:      #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    background: linear-gradient(135deg, var(--teal-deep), var(--teal-dark), var(--teal));
+    padding: 0 32px;
+    height: 58px;
+    display: flex; align-items: center;
+    gap: 14px;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+  .btn-back {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: #fff; border-radius: 8px;
+    padding: 0 14px; height: 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    transition: background 0.12s;
+    text-decoration: none;
+  }
+  .btn-back:hover { background: rgba(255,255,255,0.24); }
+  .page-header-title { font-size: 15px; font-weight: 700; color: #fff; }
+  .page-header-sub {
+    font-size: 12px; color: rgba(255,255,255,0.6);
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - 58px);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 270px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, var(--teal-deep) 0%, var(--teal-dark) 60%, var(--teal) 100%);
+    padding: 32px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    overflow-y: auto;
+  }
+  .sidebar-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+
+  /* ── SIDEBAR CARDS ── */
+  .side-card {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 11px;
+    padding: 14px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateX(-22px);
+    animation: slideInCard 0.38s ease forwards;
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  }
+  .side-card:hover {
+    background: rgba(255,255,255,0.16);
+    border-color: rgba(255,255,255,0.28);
+    transform: translateX(3px);
+  }
+  .side-card.active {
+    background: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.42);
+  }
+  @keyframes slideInCard {
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .side-icon {
+    font-size: 20px;
+    width: 38px; height: 38px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .side-text { flex: 1; }
+  .side-title {
+    font-size: 13.5px; font-weight: 600;
+    color: #fff; line-height: 1.2; margin-bottom: 3px;
+  }
+  .side-sub { font-size: 11.5px; color: rgba(255,255,255,0.55); }
+  .side-arrow {
+    font-size: 18px; font-weight: 700;
+    color: rgba(255,255,255,0.35);
+    transition: color 0.15s;
+  }
+  .side-card:hover .side-arrow,
+  .side-card.active .side-arrow { color: rgba(255,255,255,0.9); }
+
+  /* ── CONTENT ── */
+  .content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .welcome-state {
+    text-align: center;
+  }
+  .welcome-state .w-icon { font-size: 48px; margin-bottom: 16px; }
+  .welcome-state h2 {
+    font-size: 20px; font-weight: 700;
+    color: var(--teal-deep); margin-bottom: 8px;
+  }
+  .welcome-state p {
+    font-size: 14px; color: var(--text-muted);
+    line-height: 1.7; max-width: 360px;
+  }
+
+  .panel {
+    background: var(--white);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    padding: 36px 40px;
+    box-shadow: 0 2px 16px rgba(13,127,127,0.08);
+    max-width: 620px;
+    width: 100%;
+    animation: fadePanel 0.22s ease;
+  }
+  @keyframes fadePanel {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .panel-icon { font-size: 36px; margin-bottom: 14px; }
+  .panel h2 {
+    font-size: 18px; font-weight: 700;
+    color: var(--teal-deep); margin-bottom: 8px;
+  }
+  .panel p {
+    font-size: 13.5px; color: var(--text-muted); line-height: 1.7;
+  }
+  .panel-notice {
+    margin-top: 28px;
+    padding: 18px 20px;
+    background: var(--teal-light);
+    border-radius: 10px;
+    border: 1px dashed var(--teal-mid);
+  }
+  .panel-notice-label {
+    font-size: 11.5px; font-weight: 600;
+    color: var(--teal-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 5px;
+  }
+  .panel-notice p {
+    font-size: 13px; color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <a class="btn-back" href="1.0_Index.html">← Back</a>
+  <span class="page-header-title">CC Manager</span>
+  <span class="page-header-sub">Change Control Records</span>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-label">Modules</div>
+
+    <div class="side-card" id="card0" onclick="selectMenu(0)" style="animation-delay:0.05s">
+      <div class="side-icon">📝</div>
+      <div class="side-text">
+        <div class="side-title">Register Change Control</div>
+        <div class="side-sub">Initiate a new CC record</div>
+      </div>
+      <span class="side-arrow">›</span>
+    </div>
+
+    <div class="side-card" id="card1" onclick="selectMenu(1)" style="animation-delay:0.13s">
+      <div class="side-icon">🔄</div>
+      <div class="side-text">
+        <div class="side-title">Update CC Progress</div>
+        <div class="side-sub">Edit status &amp; milestones</div>
+      </div>
+      <span class="side-arrow">›</span>
+    </div>
+
+    <div class="side-card" id="card2" onclick="selectMenu(2)" style="animation-delay:0.21s">
+      <div class="side-icon">📊</div>
+      <div class="side-text">
+        <div class="side-title">CC Dashboard</div>
+        <div class="side-sub">Overview of all CC records</div>
+      </div>
+      <span class="side-arrow">›</span>
+    </div>
+
+    <div class="side-card" id="card3" onclick="selectMenu(3)" style="animation-delay:0.29s">
+      <div class="side-icon">📈</div>
+      <div class="side-text">
+        <div class="side-title">Analytics &amp; Reports</div>
+        <div class="side-sub">Trends &amp; performance data</div>
+      </div>
+      <span class="side-arrow">›</span>
+    </div>
+
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="contentArea">
+    <div class="welcome-state">
+      <div class="w-icon">📋</div>
+      <h2>CC Manager</h2>
+      <p>Select a module from the sidebar to get started with Change Control management.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const panels = [
+    {
+      icon: '📝',
+      title: 'Register Change Control',
+      desc: 'Initiate a new Change Control record. Fill in the CC form with the change description, category, initiator details, and supporting information.'
+    },
+    {
+      icon: '🔄',
+      title: 'Update CC Progress',
+      desc: 'Update the status of existing Change Control records. Record approval dates, closure dates, verification completion, and any extensions required.'
+    },
+    {
+      icon: '📊',
+      title: 'CC Dashboard',
+      desc: 'Get a full overview of all Change Control records. View open, pending, overdue, and closed CCs at a glance with department-wise breakdowns.'
+    },
+    {
+      icon: '📈',
+      title: 'Analytics & Reports',
+      desc: 'Analyse Change Control trends over time. Generate reports by year, department, category, and closure performance for GMP compliance reviews.'
+    }
+  ];
+
+  const pageLinks = {
+    0: '3.0_register_cc.html',
+    1: '4.0_update_cc_progress.html',
+    2: '5.0_cc_dashboard.html',
+    3: '6.0_cc_analytics.html',
+  };
+
+  function selectMenu(index) {
+    document.querySelectorAll('.side-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('card' + index).classList.add('active');
+
+    if (pageLinks[index]) {
+      window.location.href = pageLinks[index];
+      return;
+    }
+
+    const p = panels[index];
+    document.getElementById('contentArea').innerHTML = `
+      <div class="panel">
+        <div class="panel-icon">${p.icon}</div>
+        <h2>${p.title}</h2>
+        <p>${p.desc}</p>
+        <div class="panel-notice">
+          <div class="panel-notice-label">Coming Soon</div>
+          <p>This module will be connected to your Google Apps Script backend.</p>
+        </div>
+      </div>`;
+  }
+</script>
+
+</body>
+</html>

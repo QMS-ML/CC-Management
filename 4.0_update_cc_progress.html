@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Update CC Progress | Morison QMS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root {
+    --teal:        #0d7f7f;
+    --teal-dark:   #085f5f;
+    --teal-deep:   #053f3f;
+    --teal-light:  #e6f4f4;
+    --teal-mid:    #b3dada;
+    --text:        #1a2a2a;
+    --text-muted:  #5a7070;
+    --border:      #d0e4e4;
+    --bg:          #f2f8f8;
+    --white:       #ffffff;
+    --red:         #c0392b;
+    --red-light:   #fdf0ef;
+    --green:       #1a7a4a;
+    --green-light: #eaf5ef;
+    --orange:      #d4690a;
+    --orange-light:#fff4e8;
+    --blue:        #1a4a7a;
+    --blue-light:  #e8f0f8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--teal-deep), var(--teal-dark), var(--teal));
+    height: 58px; padding: 0 32px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+  }
+  .btn-back {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: #fff; border-radius: 8px;
+    padding: 0 14px; height: 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    text-decoration: none; transition: background 0.12s;
+  }
+  .btn-back:hover { background: rgba(255,255,255,0.24); }
+  .header-title { font-size: 15px; font-weight: 700; color: #fff; }
+  .header-sub {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; color: rgba(255,255,255,0.6);
+  }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1; padding: 32px 32px 60px;
+    max-width: 1100px; margin: 0 auto; width: 100%;
+  }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    display: flex; gap: 12px; align-items: center;
+    margin-bottom: 22px; flex-wrap: wrap;
+  }
+  .search-wrap {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 9px; padding: 0 14px; height: 40px;
+    box-shadow: 0 2px 8px rgba(13,127,127,0.07);
+    flex: 1; min-width: 200px;
+  }
+  .search-wrap input {
+    border: none; outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px; color: var(--text);
+    background: transparent; width: 100%;
+  }
+  .search-wrap span { color: var(--text-muted); font-size: 15px; }
+
+  select.filter {
+    height: 40px; border: 1.5px solid var(--border);
+    border-radius: 9px; background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; color: var(--text);
+    padding: 0 14px; outline: none;
+    box-shadow: 0 2px 8px rgba(13,127,127,0.07);
+    cursor: pointer; min-width: 160px;
+  }
+
+  .btn-refresh {
+    height: 40px; border: 1.5px solid var(--border);
+    border-radius: 9px; background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600; color: var(--teal-dark);
+    padding: 0 18px; cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    box-shadow: 0 2px 8px rgba(13,127,127,0.07);
+    transition: background 0.12s;
+  }
+  .btn-refresh:hover { background: var(--teal-light); }
+  .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── RESULTS COUNT ── */
+  .results-info {
+    font-size: 12.5px; color: var(--text-muted);
+    margin-bottom: 14px; font-weight: 500;
+  }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: var(--white);
+    border-radius: 13px;
+    border: 1px solid var(--border);
+    box-shadow: 0 3px 18px rgba(13,127,127,0.08);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr {
+    background: linear-gradient(90deg, var(--teal-deep), var(--teal));
+  }
+  thead th {
+    padding: 13px 18px;
+    font-size: 11px; font-weight: 600;
+    color: rgba(255,255,255,0.88);
+    text-align: left; letter-spacing: 0.9px;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s; cursor: pointer;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--teal-light); }
+  tbody td { padding: 14px 18px; font-size: 13.5px; vertical-align: middle; }
+
+  .cc-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; font-weight: 500;
+    background: var(--teal-light); color: var(--teal-dark);
+    border-radius: 5px; padding: 3px 9px;
+    display: inline-block; white-space: nowrap;
+  }
+  .dept-tag {
+    font-size: 11.5px; font-weight: 600;
+    border-radius: 5px; padding: 3px 10px;
+    display: inline-block; white-space: nowrap;
+  }
+
+  /* status pills */
+  .pill {
+    font-size: 11.5px; font-weight: 600;
+    border-radius: 20px; padding: 3px 11px;
+    display: inline-block; white-space: nowrap;
+  }
+  .pill-open    { background: var(--blue-light);   color: var(--blue); }
+  .pill-pending { background: var(--orange-light); color: var(--orange); }
+  .pill-overdue { background: var(--red-light);    color: var(--red); }
+  .pill-close   { background: var(--green-light);  color: var(--green); }
+
+  .update-btn {
+    height: 30px; border: 1.5px solid var(--teal-mid);
+    border-radius: 7px; background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 600; color: var(--teal-dark);
+    padding: 0 14px; cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+    white-space: nowrap;
+  }
+  .update-btn:hover { background: var(--teal-light); border-color: var(--teal); }
+
+  /* ── EMPTY / LOADING STATES ── */
+  .state-box {
+    text-align: center; padding: 56px 24px;
+    color: var(--text-muted);
+  }
+  .state-box .icon { font-size: 36px; margin-bottom: 12px; }
+  .state-box p { font-size: 14px; line-height: 1.6; }
+
+  /* ── MODAL OVERLAY ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(5,30,30,0.48);
+    z-index: 100; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--white);
+    border-radius: 14px;
+    width: 480px; max-width: 95vw;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.22);
+    overflow: hidden;
+    animation: modalIn 0.18s ease;
+  }
+  @keyframes modalIn {
+    from { transform: translateY(18px) scale(0.97); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, var(--teal-deep), var(--teal));
+    padding: 18px 22px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+  }
+  .modal-header-left {}
+  .modal-cc {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; color: rgba(255,255,255,0.6);
+    margin-bottom: 3px;
+  }
+  .modal-title { font-size: 15px; font-weight: 700; color: #fff; line-height: 1.3; }
+  .modal-dept  { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+  .modal-close {
+    background: rgba(255,255,255,0.16);
+    border: none; color: #fff; font-size: 15px;
+    width: 28px; height: 28px; border-radius: 6px;
+    cursor: pointer; flex-shrink: 0; margin-left: 12px;
+    transition: background 0.12s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.28); }
+
+  /* ── UPDATE ROWS ── */
+  .update-rows { padding: 22px 22px 8px; }
+  .update-row {
+    display: flex; align-items: center;
+    padding: 15px 16px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    margin-bottom: 12px;
+    background: #fafefe;
+    gap: 14px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .update-row.checked {
+    border-color: var(--teal-mid);
+    background: var(--teal-light);
+  }
+  .update-row-icon { font-size: 20px; flex-shrink: 0; }
+  .update-row-label {
+    font-size: 14px; font-weight: 600;
+    color: var(--text); flex: 1;
+  }
+  .update-row-label small {
+    display: block;
+    font-size: 11.5px; font-weight: 400;
+    color: var(--text-muted); margin-top: 2px;
+  }
+
+  /* custom checkbox */
+  .check-wrap {
+    position: relative; width: 22px; height: 22px; flex-shrink: 0;
+  }
+  .check-wrap input[type="checkbox"] {
+    opacity: 0; position: absolute; width: 100%; height: 100%; cursor: pointer; margin: 0;
+  }
+  .check-box {
+    width: 22px; height: 22px;
+    border: 2px solid var(--border); border-radius: 6px;
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: transparent;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    pointer-events: none;
+  }
+  .check-wrap input:checked + .check-box {
+    background: var(--teal); border-color: var(--teal); color: #fff;
+  }
+
+  .date-input {
+    border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 7px 11px; font-family: 'DM Sans', sans-serif;
+    font-size: 13px; color: var(--text); outline: none;
+    background: var(--white); flex-shrink: 0; width: 148px;
+    transition: border-color 0.15s;
+  }
+  .date-input:focus { border-color: var(--teal); }
+  .date-input:disabled { background: #f4f9f9; color: #aaa; border-color: var(--border); cursor: not-allowed; }
+
+  /* ── MODAL FOOTER ── */
+  .modal-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 10px;
+  }
+  .btn-cancel-modal {
+    height: 38px; border: 1.5px solid var(--border);
+    border-radius: 9px; background: var(--white);
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    font-weight: 600; color: var(--text-muted);
+    padding: 0 20px; cursor: pointer;
+    transition: border-color 0.12s;
+  }
+  .btn-cancel-modal:hover { border-color: var(--teal-mid); }
+
+  .btn-save-modal {
+    height: 38px; border: none; border-radius: 9px;
+    background: var(--teal); color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    font-weight: 700; padding: 0 24px; cursor: pointer;
+    box-shadow: 0 3px 10px rgba(13,127,127,0.25);
+    transition: background 0.12s; display: flex; align-items: center; gap: 8px;
+  }
+  .btn-save-modal:hover { background: var(--teal-dark); }
+  .btn-save-modal:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+  .spinner {
+    width: 15px; height: 15px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.7s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── TOAST ── */
+  .toast {
+    display: none; position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--teal-deep); color: #fff;
+    border-radius: 10px; padding: 12px 20px;
+    font-size: 13.5px; font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    z-index: 200; animation: modalIn 0.18s ease;
+  }
+
+  @media(max-width:640px) {
+    .main { padding: 20px 16px 48px; }
+    .toolbar { gap: 8px; }
+    .form-grid-2 { grid-template-columns: 1fr; }
+  }
+
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 270px; flex-shrink: 0;
+    background: linear-gradient(180deg, var(--teal-deep) 0%, var(--teal-dark) 60%, var(--teal) 100%);
+    padding: 32px 18px;
+    display: flex; flex-direction: column; gap: 12px;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    overflow-y: auto;
+  }
+  .sidebar-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 2.5px; text-transform: uppercase;
+    margin-bottom: 8px; padding-left: 4px;
+  }
+  .side-card {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 11px; padding: 14px;
+    cursor: pointer; text-decoration: none;
+    opacity: 0; transform: translateX(-22px);
+    animation: slideIn 0.38s ease forwards;
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  }
+  .side-card:hover {
+    background: rgba(255,255,255,0.16);
+    border-color: rgba(255,255,255,0.28);
+    transform: translateX(3px);
+  }
+  .side-card.active {
+    background: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.42);
+  }
+  @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+  .side-icon {
+    font-size: 20px; width: 38px; height: 38px;
+    background: rgba(255,255,255,0.12); border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .side-text { flex: 1; }
+  .side-title { font-size: 13.5px; font-weight: 600; color: #fff; line-height: 1.2; margin-bottom: 3px; }
+  .side-sub   { font-size: 11.5px; color: rgba(255,255,255,0.55); }
+  .side-arrow { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.35); transition: color 0.15s; }
+  .side-card:hover .side-arrow,
+  .side-card.active .side-arrow { color: rgba(255,255,255,0.9); }
+
+  /* ── CONTENT ── */
+  .content {
+    flex: 1; overflow-y: auto;
+    padding: 32px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    padding: 12px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .footer-left  { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+  .footer-right { font-size: 11.5px; color: var(--text-muted); }
+
+  /* ── LOCKED ROW ── */
+  .update-row.locked {
+    opacity: 0.72;
+    pointer-events: none;
+    background: #f7fafa;
+    border-color: var(--border);
+  }
+  .update-row.locked .check-box {
+    background: #1a7a4a !important;
+    border-color: #1a7a4a !important;
+    color: #fff;
+  }
+  .update-row.locked .date-input {
+    background: #f7fafa;
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+  .locked-badge {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    color: #1a7a4a;
+    background: #eaf5ef;
+    border: 1px solid #b3d9c5;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-left: 6px;
+    letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a class="btn-back" href="2.0_cc_manager.html">← Back</a>
+  <span class="header-title">CC Manager</span>
+  <span class="header-sub">Morison QMS — 2026</span>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-label">Modules</div>
+    <a class="side-card" href="3.0_Register_cc.html" style="animation-delay:0.05s">
+      <div class="side-icon">📝</div>
+      <div class="side-text"><div class="side-title">Register Change Control</div><div class="side-sub">Initiate a new CC record</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+    <a class="side-card" href="4.0_update_cc_progress.html" style="animation-delay:0.13s">
+      <div class="side-icon">🔄</div>
+      <div class="side-text"><div class="side-title">Update CC Progress</div><div class="side-sub">Edit status &amp; milestones</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+    <a class="side-card active" href="5.0_cc_dashboard.html" style="animation-delay:0.21s">
+      <div class="side-icon">📊</div>
+      <div class="side-text"><div class="side-title">CC Dashboard</div><div class="side-sub">Overview of all CC records</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+    <a class="side-card" href="6.0_cc_analytics.html" style="animation-delay:0.29s">
+      <div class="side-icon">📈</div>
+      <div class="side-text"><div class="side-title">Analytics &amp; Reports</div><div class="side-sub">Trends &amp; performance data</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+  <!-- TOOLBAR -->
+<!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span>🔍</span>
+      <input type="text" id="searchInput" placeholder="Search by CC number…" oninput="filterList()">
+    </div>
+    <select class="filter" id="filterDept" onchange="filterList()">
+      <option value="">All Departments</option>
+    </select>
+    <button class="btn-refresh" id="btnRefresh" onclick="loadData()">
+      <span id="refreshIcon">↻</span> Refresh
+    </button>
+  </div>
+
+  <!-- RESULTS INFO -->
+  <div class="results-info" id="resultsInfo"></div>
+
+  <!-- TABLE -->
+  <div class="table-wrap" id="tableWrap">
+    <div class="state-box">
+      <div class="icon">⏳</div>
+      <p>Loading records from Google Sheet…</p>
+    </div>
+  </div>
+
+</div>
+
+
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-left">QMS v2.0 &nbsp;|&nbsp; Morison Limited, Sri Lanka</span>
+  <span class="footer-right">GMP Compliant &nbsp;·&nbsp; Internal Use Only</span>
+</footer>
+
+<!-- UPDATE MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-cc" id="mCCNum"></div>
+        <div class="modal-title" id="mTitle"></div>
+        <div class="modal-dept" id="mDept"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="update-rows">
+
+      <!-- APPROVAL -->
+      <div class="update-row" id="rowApproval">
+        <div class="update-row-icon">✅</div>
+        <div class="update-row-label">
+          Approval
+          <small>Date QA approved this change</small>
+        </div>
+        <label class="check-wrap">
+          <input type="checkbox" id="chkApproval" onchange="onCheck('Approval')">
+          <div class="check-box">✓</div>
+        </label>
+        <input type="date" class="date-input" id="dateApproval" disabled onchange="syncCheck('Approval')">
+      </div>
+
+      <!-- CLOSURE -->
+      <div class="update-row" id="rowClosure">
+        <div class="update-row-icon">🔒</div>
+        <div class="update-row-label">
+          Closure
+          <small>Actual date of CC closure</small>
+        </div>
+        <label class="check-wrap">
+          <input type="checkbox" id="chkClosure" onchange="onCheck('Closure')">
+          <div class="check-box">✓</div>
+        </label>
+        <input type="date" class="date-input" id="dateClosure" disabled onchange="syncCheck('Closure')">
+      </div>
+
+      <!-- VERIFICATION -->
+      <div class="update-row" id="rowVerification">
+        <div class="update-row-icon">🔍</div>
+        <div class="update-row-label">
+          Verification
+          <small>Date of verification completion</small>
+        </div>
+        <label class="check-wrap">
+          <input type="checkbox" id="chkVerification" onchange="onCheck('Verification')">
+          <div class="check-box">✓</div>
+        </label>
+        <input type="date" class="date-input" id="dateVerification" disabled onchange="syncCheck('Verification')">
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+      <button class="btn-save-modal" id="btnSave" onclick="saveProgress()">
+        <span id="saveLabel">Save</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────────
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzginJjHPtKv9NPQ3FDfZGv8MfkpFYCS06V6nH7PLsc7-biSOdPunko92zGLhzg1jw7/exec'; // ← Replace with your deployed URL
+  // ────────────────────────────────────────────────────────────
+
+  let allRecords = [];
+  let selectedRecord = null;
+  let isSaving = false;
+
+  // Dept colour map
+  const deptColors = {
+    'Quality Assurance':    { bg:'#e8f0f8', color:'#1a4a7a' },
+    'Quality Control':      { bg:'#e8f8f0', color:'#1a6a3a' },
+    'Production':           { bg:'#f8f0e8', color:'#7a4a1a' },
+    'Technical Services':   { bg:'#f0e8f8', color:'#5a1a7a' },
+    'Analytical Development':{ bg:'#fdf5e6', color:'#7a5a1a' },
+    'Microbiology':         { bg:'#e8f8f8', color:'#1a6a6a' },
+    'Warehouse':            { bg:'#f5f5f5', color:'#4a4a4a' },
+    'HR':                   { bg:'#f8e8f0', color:'#7a1a4a' },
+    'Engineering':          { bg:'#eff8ff', color:'#1a3a7a' },
+  };
+
+  function deptTag(dept) {
+    const c = deptColors[dept] || { bg:'#f0f0f0', color:'#555' };
+    return `<span class="dept-tag" style="background:${c.bg};color:${c.color}">${dept}</span>`;
+  }
+
+  function statusPill(row) {
+    if (row.closureStatus === 'Close' || row.closureStatus === 'Closed') {
+      return '<span class="pill pill-close">Closed</span>';
+    } else if (row.closureStatus === 'Overdue') {
+      return '<span class="pill pill-overdue">Overdue</span>';
+    } else if (row.approvalStatus === 'Pending' || !row.approvalStatus) {
+      return '<span class="pill pill-pending">Pending Approval</span>';
+    } else {
+      return '<span class="pill pill-open">Open</span>';
+    }
+  }
+
+  // ── LOAD DATA ──
+  function loadData() {
+    const btn = document.getElementById('btnRefresh');
+    const icon = document.getElementById('refreshIcon');
+    btn.disabled = true;
+    icon.style.animation = 'spin 0.7s linear infinite';
+
+    showLoading();
+
+    fetch(APPS_SCRIPT_URL + '?action=getCCList')
+      .then(r => r.json())
+      .then(data => {
+        allRecords = data.records || [];
+        buildDeptFilter();
+        renderTable(allRecords);
+      })
+      .catch(() => {
+        showToast('⚠ Could not connect to Google Sheet. Check your Apps Script URL.');
+        document.getElementById('tableWrap').innerHTML = `
+          <div class="state-box">
+            <div class="icon">⚠️</div>
+            <p>Could not load records. Please check your Apps Script connection and try again.</p>
+          </div>`;
+      })
+      .finally(() => {
+        btn.disabled = false;
+        icon.style.animation = '';
+      });
+  }
+
+  function showLoading() {
+    document.getElementById('resultsInfo').textContent = '';
+    document.getElementById('tableWrap').innerHTML = `
+      <div class="state-box">
+        <div class="icon">⏳</div>
+        <p>Loading records from Google Sheet…</p>
+      </div>`;
+  }
+
+  // ── BUILD DEPT FILTER ──
+  function buildDeptFilter() {
+    const depts = [...new Set(allRecords.map(r => r.department).filter(Boolean))].sort();
+    const sel = document.getElementById('filterDept');
+    sel.innerHTML = '<option value="">All Departments</option>' +
+      depts.map(d => `<option value="${d}">${d}</option>`).join('');
+  }
+
+  // ── FILTER ──
+  function filterList() {
+    const q    = document.getElementById('searchInput').value.toLowerCase().trim();
+    const dept = document.getElementById('filterDept').value;
+    const filtered = allRecords.filter(r =>
+      (!q    || r.ccNumber.toLowerCase().includes(q)) &&
+      (!dept || r.department === dept)
+    );
+    renderTable(filtered);
+  }
+
+  // ── RENDER TABLE ──
+  function renderTable(rows) {
+    const wrap = document.getElementById('tableWrap');
+    const info = document.getElementById('resultsInfo');
+
+    if (!rows.length) {
+      info.textContent = '0 records found';
+      wrap.innerHTML = `
+        <div class="state-box">
+          <div class="icon">📋</div>
+          <p>No records match the selected filters.</p>
+        </div>`;
+      return;
+    }
+
+    info.textContent = rows.length + ' record' + (rows.length !== 1 ? 's' : '') + ' found';
+
+    wrap.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>CC Number</th>
+            <th>Title</th>
+            <th>Department</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr onclick="openModal('${r.ccNumber}')">
+              <td><span class="cc-tag">${r.ccNumber}</span></td>
+              <td style="font-size:13px">${r.title}</td>
+              <td>${deptTag(r.department)}</td>
+              <td><button class="update-btn" onclick="event.stopPropagation();openModal('${r.ccNumber}')">Update</button></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  function tickDate(d) {
+    if (!d) return '<span style="color:#ccc">—</span>';
+    return `<span style="color:var(--green);font-weight:600">✔</span>
+            <span style="color:var(--text-muted);font-size:12px;margin-left:4px">${formatDate(d)}</span>`;
+  }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    const parts = d.split('-');
+    if (parts.length === 3) return parts.reverse().join('/');
+    return d;
+  }
+
+  // ── OPEN MODAL ──
+  function openModal(ccNumber) {
+    const r = allRecords.find(x => x.ccNumber === ccNumber);
+    if (!r) return;
+    selectedRecord = r;
+
+    document.getElementById('mCCNum').textContent  = r.ccNumber;
+    document.getElementById('mTitle').textContent  = r.title;
+    document.getElementById('mDept').textContent   = r.department;
+
+    setRow('Approval',     r.approvalDate,     r.approvalStatus     === 'Approved');
+    setRow('Closure',      r.closureDate,      r.closureStatus      === 'Closed');
+    setRow('Verification', r.verificationDate, r.verificationStatus === 'Verified');
+
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+
+  function setRow(field, dateValue, locked) {
+    const chk   = document.getElementById('chk' + field);
+    const date  = document.getElementById('date' + field);
+    const row   = document.getElementById('row' + field);
+    const label = row.querySelector('.update-row-label');
+
+    // Remove any existing locked badge
+    const existingBadge = label.querySelector('.locked-badge');
+    if (existingBadge) existingBadge.remove();
+
+    if (locked && dateValue) {
+      // Fully lock this row — cannot be changed
+      chk.checked   = true;
+      date.value    = dateValue;
+      date.disabled = true;
+      chk.disabled  = true;
+      row.classList.add('checked', 'locked');
+      const badge = document.createElement('span');
+      badge.className   = 'locked-badge';
+      badge.textContent = '🔒 Locked';
+      label.appendChild(badge);
+    } else if (dateValue) {
+      chk.checked   = true;
+      date.value    = dateValue;
+      date.disabled = false;
+      chk.disabled  = false;
+      row.classList.add('checked');
+      row.classList.remove('locked');
+    } else {
+      chk.checked   = false;
+      date.value    = '';
+      date.disabled = true;
+      chk.disabled  = false;
+      row.classList.remove('checked', 'locked');
+    }
+  }
+
+  function onCheck(field) {
+    const chk  = document.getElementById('chk' + field);
+    const date = document.getElementById('date' + field);
+    const row  = document.getElementById('row' + field);
+
+    if (chk.checked) {
+      date.disabled = false;
+      if (!date.value) date.value = new Date().toISOString().split('T')[0];
+      row.classList.add('checked');
+    } else {
+      date.disabled = true;
+      date.value    = '';
+      row.classList.remove('checked');
+    }
+  }
+
+  function syncCheck(field) {
+    const date = document.getElementById('date' + field);
+    const chk  = document.getElementById('chk' + field);
+    if (date.value) chk.checked = true;
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    selectedRecord = null;
+  }
+
+  // ── SAVE ──
+  function saveProgress() {
+    if (isSaving || !selectedRecord) return;
+    isSaving = true;
+
+    const btnSave = document.getElementById('btnSave');
+    document.getElementById('saveLabel').innerHTML = '<span class="spinner"></span> Saving…';
+    btnSave.disabled = true;
+
+    const payload = {
+      action:           'updateCCProgress',
+      ccNumber:         selectedRecord.ccNumber,
+      approvalDate:     document.getElementById('chkApproval').checked     ? document.getElementById('dateApproval').value     : '',
+      closureDate:      document.getElementById('chkClosure').checked      ? document.getElementById('dateClosure').value      : '',
+      verificationDate: document.getElementById('chkVerification').checked ? document.getElementById('dateVerification').value : '',
+    };
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          // Update local record
+          const idx = allRecords.findIndex(x => x.ccNumber === selectedRecord.ccNumber);
+          if (idx > -1) {
+            allRecords[idx].approvalDate       = payload.approvalDate;
+            allRecords[idx].closureDate        = payload.closureDate;
+            allRecords[idx].verificationDate   = payload.verificationDate;
+            allRecords[idx].approvalStatus     = payload.approvalDate     ? 'Approved' : 'Pending';
+            allRecords[idx].closureStatus      = payload.closureDate      ? 'Closed'   : 'Pending';
+            allRecords[idx].verificationStatus = payload.verificationDate ? 'Verified' : 'Pending';
+          }
+          closeModal();
+          filterList();
+          showToast('✔ ' + payload.ccNumber + ' progress updated.');
+        } else {
+          throw new Error(data.message || 'Save failed.');
+        }
+      })
+      .catch(err => {
+        showToast('✖ ' + (err.message || 'Could not save. Please try again.'));
+      })
+      .finally(() => {
+        isSaving = false;
+        document.getElementById('saveLabel').textContent = 'Save';
+        btnSave.disabled = false;
+      });
+  }
+
+  // ── HELPERS ──
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 3000);
+  }
+
+
+
+  // ── INIT ──
+  window.addEventListener('load', loadData);
+</script>
+
+</body>
+</html>

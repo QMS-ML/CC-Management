@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register Change Control | Morison QMS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:#0d7f7f;--teal-dark:#085f5f;--teal-deep:#053f3f;
+    --teal-light:#e6f4f4;--teal-mid:#b3dada;
+    --text:#1a2a2a;--text-muted:#5a7070;--border:#d0e4e4;
+    --bg:#f2f8f8;--white:#ffffff;
+    --red:#c0392b;--red-light:#fdf0ef;
+    --green:#1a7a4a;--green-light:#eaf5ef;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+  /* HEADER */
+  header{background:linear-gradient(135deg,var(--teal-deep),var(--teal-dark),var(--teal));height:58px;padding:0 32px;display:flex;align-items:center;gap:14px;box-shadow:0 3px 16px rgba(0,0,0,0.2);flex-shrink:0;}
+  .btn-back{background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);color:#fff;border-radius:8px;padding:0 14px;height:32px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;transition:background 0.12s;}
+  .btn-back:hover{background:rgba(255,255,255,0.24);}
+  .header-title{font-size:15px;font-weight:700;color:#fff;}
+  .header-sub{margin-left:auto;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.6);}
+
+  /* LAYOUT */
+  .layout{display:flex;flex:1;min-height:0;}
+
+  /* SIDEBAR */
+  .sidebar{width:270px;flex-shrink:0;background:linear-gradient(180deg,var(--teal-deep) 0%,var(--teal-dark) 60%,var(--teal) 100%);padding:32px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:4px 0 24px rgba(0,0,0,0.15);overflow-y:auto;}
+  .sidebar-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:rgba(255,255,255,0.45);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;padding-left:4px;}
+  .side-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:11px;padding:14px;cursor:pointer;text-decoration:none;opacity:0;transform:translateX(-22px);animation:slideIn 0.38s ease forwards;transition:background 0.18s,border-color 0.18s,transform 0.18s;}
+  .side-card:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.28);transform:translateX(3px);}
+  .side-card.active{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.42);}
+  @keyframes slideIn{to{opacity:1;transform:translateX(0);}}
+  .side-icon{font-size:20px;width:38px;height:38px;background:rgba(255,255,255,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .side-text{flex:1;}
+  .side-title{font-size:13.5px;font-weight:600;color:#fff;line-height:1.2;margin-bottom:3px;}
+  .side-sub{font-size:11.5px;color:rgba(255,255,255,0.55);}
+  .side-arrow{font-size:18px;font-weight:700;color:rgba(255,255,255,0.35);transition:color 0.15s;}
+  .side-card:hover .side-arrow,.side-card.active .side-arrow{color:rgba(255,255,255,0.9);}
+
+  /* CONTENT */
+  .content{flex:1;overflow-y:auto;padding:36px 32px 40px;display:flex;flex-direction:column;align-items:center;}
+
+  /* FORM CARD */
+  .form-card{background:var(--white);border-radius:16px;border:1px solid var(--border);box-shadow:0 4px 28px rgba(13,127,127,0.10);width:100%;max-width:620px;overflow:hidden;animation:fadeUp 0.22s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .form-card-header{background:linear-gradient(135deg,var(--teal-deep),var(--teal));padding:22px 28px;}
+  .form-card-header-top{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+  .form-card-icon{font-size:22px;width:42px;height:42px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+  .form-card-title{font-size:17px;font-weight:700;color:#fff;}
+  .form-card-sub{font-size:12.5px;color:rgba(255,255,255,0.6);margin-top:2px;}
+
+  /* CC BANNER */
+  .cc-banner{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:10px;padding:12px 18px;margin-top:16px;display:flex;align-items:center;gap:14px;}
+  .cc-banner-label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;}
+  .cc-banner-number{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:#fff;letter-spacing:1px;}
+  .cc-banner-loading{font-size:13px;color:rgba(255,255,255,0.5);font-style:italic;}
+  .cc-banner-dot{width:9px;height:9px;border-radius:50%;background:#6eefb8;margin-left:auto;flex-shrink:0;}
+  .cc-banner-dot.loading{background:rgba(255,255,255,0.3);animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+  /* FORM */
+  .form-body{padding:28px;}
+  .form-row{margin-bottom:20px;}
+  .form-row label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:7px;}
+  .form-row label span.req{color:var(--teal);}
+  .form-row input,.form-row select,.form-row textarea{width:100%;border:1.5px solid var(--border);border-radius:9px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--white);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+  .form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,127,127,0.10);}
+  .form-row textarea{resize:vertical;min-height:100px;line-height:1.6;}
+  .form-row input:disabled,.form-row select:disabled,.form-row textarea:disabled{background:#f4f9f9;color:var(--text-muted);cursor:not-allowed;border-color:var(--border);}
+  .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .hint{font-size:11.5px;color:var(--red);margin-top:5px;display:none;}
+  .hint.show{display:block;}
+
+  /* ALERTS */
+  .alert{border-radius:10px;padding:13px 18px;margin:0 28px 20px;font-size:13.5px;font-weight:500;display:none;align-items:center;gap:10px;}
+  .alert.success{background:var(--green-light);border:1px solid #a0d4b8;color:var(--green);}
+  .alert.error{background:var(--red-light);border:1px solid #f0b8b0;color:var(--red);}
+  .alert.show{display:flex;}
+
+  /* BUTTONS */
+  .form-footer{padding:18px 28px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;justify-content:flex-end;}
+  .btn-cancel{height:40px;border:1.5px solid var(--border);border-radius:9px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;color:var(--text-muted);padding:0 22px;cursor:pointer;transition:border-color 0.12s,color 0.12s;}
+  .btn-cancel:hover{border-color:var(--teal-mid);color:var(--teal-dark);}
+  .btn-cancel:disabled{opacity:0.45;cursor:not-allowed;}
+  .btn-register{height:40px;border:none;border-radius:9px;background:var(--teal);font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:700;color:#fff;padding:0 28px;cursor:pointer;box-shadow:0 3px 12px rgba(13,127,127,0.28);transition:background 0.12s;display:flex;align-items:center;gap:8px;}
+  .btn-register:hover{background:var(--teal-dark);}
+  .btn-register:disabled{opacity:0.5;cursor:not-allowed;box-shadow:none;}
+  .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* FOOTER */
+  footer{background:var(--white);border-top:1px solid var(--border);padding:12px 40px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .footer-left{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+  .footer-right{font-size:11.5px;color:var(--text-muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="btn-back" href="2.0_cc_manager.html">← Back</a>
+  <span class="header-title">CC Manager</span>
+  <span class="header-sub">Morison QMS — 2026</span>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-label">Modules</div>
+    <a class="side-card" href="3.0_Register_cc.html" style="animation-delay:0.05s">
+      <div class="side-icon">📝</div>
+      <div class="side-text"><div class="side-title">Register Change Control</div><div class="side-sub">Initiate a new CC record</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+    <a class="side-card" href="4.0_update_cc_progress.html" style="animation-delay:0.13s">
+      <div class="side-icon">🔄</div>
+      <div class="side-text"><div class="side-title">Update CC Progress</div><div class="side-sub">Edit status &amp; milestones</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+    <a class="side-card active" href="5.0_cc_dashboard.html" style="animation-delay:0.21s">
+      <div class="side-icon">📊</div>
+      <div class="side-text"><div class="side-title">CC Dashboard</div><div class="side-sub">Overview of all CC records</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+    <a class="side-card" href="6.0_cc_analytics.html" style="animation-delay:0.29s">
+      <div class="side-icon">📈</div>
+      <div class="side-text"><div class="side-title">Analytics &amp; Reports</div><div class="side-sub">Trends &amp; performance data</div></div>
+      <span class="side-arrow">›</span>
+    </a>
+  </div>
+
+  <div class="content">
+    <div class="form-card">
+
+      <div class="form-card-header">
+        <div class="form-card-header-top">
+          <div class="form-card-icon">📝</div>
+          <div>
+            <div class="form-card-title">New Change Control</div>
+            <div class="form-card-sub">Fill in the details below to register a new CC</div>
+          </div>
+        </div>
+        <div class="cc-banner">
+          <div>
+            <div class="cc-banner-label">CC Number</div>
+            <div class="cc-banner-number" id="ccNumber"><span class="cc-banner-loading">Fetching…</span></div>
+          </div>
+          <div class="cc-banner-dot loading" id="ccDot"></div>
+        </div>
+      </div>
+
+      <div class="alert success" id="alertSuccess">✔ Change Control registered successfully.</div>
+      <div class="alert error" id="alertError">✖ <span id="alertErrorMsg">Something went wrong.</span></div>
+
+      <div class="form-body">
+        <div class="form-row">
+          <label>Title <span class="req">*</span></label>
+          <input type="text" id="f_title" placeholder="Brief title of the change" maxlength="200">
+          <div class="hint" id="h_title">Title is required.</div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label>Department <span class="req">*</span></label>
+            <select id="f_dept">
+              <option value="">— Select —</option>
+              <option>Quality Assurance</option>
+              <option>Quality Control</option>
+              <option>Production</option>
+              <option>Technical Services</option>
+              <option>Analytical Development</option>
+              <option>Microbiology</option>
+              <option>Warehouse</option>
+              <option>HR</option>
+              <option>Engineering</option>
+               <option>Supply Chain</option>
+               <option>IT</option>
+            </select>
+            <div class="hint" id="h_dept">Department is required.</div>
+          </div>
+          <div class="form-row">
+            <label>Initiator Name <span class="req">*</span></label>
+            <input type="text" id="f_initiator" placeholder="Full name">
+            <div class="hint" id="h_initiator">Initiator name is required.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Description <span class="req">*</span></label>
+          <textarea id="f_desc" placeholder="Describe the change in detail…"></textarea>
+          <div class="hint" id="h_desc">Description is required.</div>
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <label>Change Category <span class="req">*</span></label>
+          <select id="f_category">
+            <option value="">— Select —</option>
+            <option>Critical</option>
+            <option>Major</option>
+            <option>Minor</option>
+          </select>
+          <div class="hint" id="h_category">Change category is required.</div>
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <label>Date Initiated <span class="req">*</span></label>
+          <input type="date" id="f_date">
+          <div class="hint" id="h_date">Date initiated is required.</div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <button class="btn-cancel" id="btnCancel" onclick="cancelForm()">Cancel</button>
+        <button class="btn-register" id="btnRegister" onclick="registerCC()">
+          <span id="btnLabel">Register</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span class="footer-left">QMS v2.0 &nbsp;|&nbsp; Morison Limited, Sri Lanka</span>
+  <span class="footer-right">GMP Compliant &nbsp;·&nbsp; Internal Use Only</span>
+</footer>
+
+<script>
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkJKYwtN7mNUwbXJPNWP2h5ZF9P91qtDujRCq6ggS7r8FUmoJTeMw6XqkiInP7vS5q/exec';
+  let currentCCNumber = null;
+  let isSubmitting = false;
+
+  window.addEventListener('load', fetchNextCC);
+
+  function fetchNextCC() {
+    currentCCNumber = null;
+    document.getElementById('ccNumber').innerHTML = '<span class="cc-banner-loading">Fetching…</span>';
+    document.getElementById('ccDot').className = 'cc-banner-dot loading';
+    fetch(APPS_SCRIPT_URL + '?action=getNextCC')
+      .then(r => r.json())
+      .then(data => {
+        if (data.nextCC) {
+          currentCCNumber = data.nextCC;
+          document.getElementById('ccNumber').textContent = currentCCNumber;
+          document.getElementById('ccDot').className = 'cc-banner-dot';
+        } else { showError('Could not fetch next CC number.'); }
+      })
+      .catch(() => {
+        currentCCNumber = 'MH/CC/26/XXX';
+        document.getElementById('ccNumber').textContent = currentCCNumber;
+        document.getElementById('ccDot').className = 'cc-banner-dot';
+        showError('Could not connect to Google Sheet. Using estimated CC number.');
+      });
+  }
+
+  function validate() {
+    let valid = true;
+    [['f_title','h_title'],['f_dept','h_dept'],['f_initiator','h_initiator'],['f_desc','h_desc'],['f_category','h_category'],['f_date','h_date']].forEach(([fid,hid]) => {
+      const el = document.getElementById(fid), hint = document.getElementById(hid);
+      if (!el.value.trim()) { hint.classList.add('show'); el.style.borderColor='var(--red)'; valid=false; }
+      else { hint.classList.remove('show'); el.style.borderColor=''; }
+    });
+    return valid;
+  }
+
+  function registerCC() {
+    if (isSubmitting) return;
+    hideAlerts();
+    if (!validate()) return;
+    if (!currentCCNumber || currentCCNumber === 'MH/CC/26/XXX') { showError('CC Number is not ready.'); return; }
+    isSubmitting = true;
+    setFormDisabled(true);
+    document.getElementById('btnLabel').innerHTML = '<span class="spinner"></span> Registering…';
+    const payload = { action:'registerCC', ccNumber:currentCCNumber, title:document.getElementById('f_title').value.trim(), department:document.getElementById('f_dept').value, initiator:document.getElementById('f_initiator').value.trim(), description:document.getElementById('f_desc').value.trim(), category:document.getElementById('f_category').value, dateInitiated:document.getElementById('f_date').value };
+    fetch(APPS_SCRIPT_URL, { method:'POST', body:JSON.stringify(payload) })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('alertSuccess').textContent = '✔ ' + currentCCNumber + ' registered successfully.';
+          document.getElementById('alertSuccess').classList.add('show');
+          resetForm(); fetchNextCCAfterRegister();
+        } else { throw new Error(data.message || 'Registration failed.'); }
+      })
+      .catch(err => { showError(err.message || 'Could not connect. Please try again.'); isSubmitting=false; setFormDisabled(false); document.getElementById('btnLabel').textContent='Register'; });
+  }
+
+  function fetchNextCCAfterRegister() {
+    document.getElementById('ccNumber').innerHTML = '<span class="cc-banner-loading">Fetching next…</span>';
+    document.getElementById('ccDot').className = 'cc-banner-dot loading';
+    fetch(APPS_SCRIPT_URL + '?action=getNextCC').then(r=>r.json()).then(data=>{ if(data.nextCC){ currentCCNumber=data.nextCC; document.getElementById('ccNumber').textContent=currentCCNumber; document.getElementById('ccDot').className='cc-banner-dot'; } }).finally(()=>{ isSubmitting=false; setFormDisabled(false); document.getElementById('btnLabel').textContent='Register'; });
+  }
+
+  function cancelForm() { hideAlerts(); resetForm(); clearValidation(); }
+
+  function resetForm() {
+    ['f_title','f_initiator','f_desc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f_dept').value=''; document.getElementById('f_category').value=''; document.getElementById('f_date').value='';
+    clearValidation();
+  }
+
+  function clearValidation() {
+    ['f_title','f_dept','f_initiator','f_desc','f_category','f_date'].forEach(id=>document.getElementById(id).style.borderColor='');
+    ['h_title','h_dept','h_initiator','h_desc','h_category'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  }
+
+  function setFormDisabled(state) {
+    ['f_title','f_dept','f_initiator','f_desc','f_category','f_date'].forEach(id=>document.getElementById(id).disabled=state);
+    document.getElementById('btnRegister').disabled=state; document.getElementById('btnCancel').disabled=state;
+  }
+
+  function showError(msg) { document.getElementById('alertErrorMsg').textContent=msg; document.getElementById('alertError').classList.add('show'); }
+  function hideAlerts()   { document.getElementById('alertSuccess').classList.remove('show'); document.getElementById('alertError').classList.remove('show'); }
+
+  ['f_title','f_dept','f_initiator','f_desc','f_category','f_date'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',()=>document.getElementById(id).style.borderColor='');
+    document.getElementById(id).addEventListener('change',()=>document.getElementById(id).style.borderColor='');
+  });
+</script>
+</body>
+</html>

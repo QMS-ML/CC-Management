@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morison QMS | Main Menu</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:       #0d7f7f;
+    --teal-dark:  #085f5f;
+    --teal-deep:  #053f3f;
+    --teal-light: #e6f4f4;
+    --teal-mid:   #b3dada;
+    --blue:       #1a4a7a;
+    --text:       #1a2a2a;
+    --text-muted: #5a7070;
+    --border:     #d0e4e4;
+    --bg:         #f2f8f8;
+    --white:      #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--teal-deep) 0%, var(--teal-dark) 50%, var(--teal) 100%);
+    padding: 0 40px;
+    height: 62px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 3px 20px rgba(0,0,0,0.22);
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .header-emblem {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+  .header-brand { display: flex; flex-direction: column; gap: 1px; }
+  .header-company {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 2.5px; text-transform: uppercase;
+  }
+  .header-system { font-size: 15px; font-weight: 700; color: #fff; }
+  .header-date {
+    font-size: 12px; color: rgba(255,255,255,0.6);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    border-bottom: 1px solid var(--border);
+    padding: 36px 40px 28px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(8,95,95,0.06) 0%, transparent 100%);
+  }
+  .hero-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--teal); margin-bottom: 8px;
+  }
+  .hero-title {
+    font-size: 28px; font-weight: 700;
+    color: var(--teal-deep); line-height: 1.2; margin-bottom: 8px;
+  }
+  .hero-sub { font-size: 14px; color: var(--text-muted); }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 44px 24px 60px;
+  }
+
+  /* ── MENU GRID ── */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 760px;
+    width: 100%;
+  }
+
+  /* ── MODULE CARD ── */
+  .module-card {
+    background: var(--white);
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 4px 20px rgba(13,127,127,0.08);
+    cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+    text-decoration: none;
+    display: block;
+  }
+  .module-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(13,127,127,0.16);
+    border-color: var(--teal-mid);
+  }
+  .module-card:hover .card-arrow { transform: translateX(4px); }
+
+  .card-top {
+    padding: 24px 22px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .card-icon-wrap {
+    width: 52px; height: 52px; border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .card-icon-wrap.teal {
+    background: linear-gradient(135deg, var(--teal-light), #c5e8e8);
+    border: 1.5px solid var(--teal-mid);
+  }
+  .card-icon-wrap.blue {
+    background: linear-gradient(135deg, #e8f0f8, #c8daf0);
+    border: 1.5px solid #b0cce8;
+  }
+  .card-text { flex: 1; }
+  .card-title {
+    font-size: 15px; font-weight: 700;
+    color: var(--teal-deep); margin-bottom: 5px;
+  }
+  .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+  .card-arrow {
+    font-size: 18px; font-weight: 700;
+    color: var(--teal); transition: transform 0.18s; flex-shrink: 0;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    padding: 14px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-left {
+    font-size: 12px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .footer-right { font-size: 11.5px; color: var(--text-muted); }
+
+  @media (max-width: 600px) {
+    .menu-grid { grid-template-columns: 1fr; }
+    header { padding: 0 20px; }
+    .hero  { padding: 24px 20px 20px; }
+    .hero-title { font-size: 22px; }
+    footer { flex-direction: column; gap: 4px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="header-emblem">⚗</div>
+    <div class="header-brand">
+      <span class="header-company">Morison Limited</span>
+      <span class="header-system">Quality Management System</span>
+    </div>
+  </div>
+  <span class="header-date" id="headerDate"></span>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Main Menu</div>
+  <div class="hero-title">Change Control Management</div>
+  <div class="hero-sub">Select a module to continue</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="menu-grid">
+
+    <!-- CC MANAGER -->
+    <a class="module-card" href="2.0_cc_manager.html">
+      <div class="card-top">
+        <div class="card-icon-wrap teal">📋</div>
+        <div class="card-text">
+          <div class="card-title">CC Manager</div>
+          <div class="card-desc">Manage and track Change Control records.</div>
+        </div>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- ACTION ITEM MANAGER -->
+    <a class="module-card" href="7.0_action_item_manager.html">
+      <div class="card-top">
+        <div class="card-icon-wrap blue">✅</div>
+        <div class="card-text">
+          <div class="card-title">Action Item Manager</div>
+          <div class="card-desc">Track action items linked to each CC.</div>
+        </div>
+        <span class="card-arrow" style="color:var(--blue)">→</span>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-left">QMS V0.0 &nbsp;|&nbsp; Morison Limited, Sri Lanka</span>
+  <span class="footer-right">GMP Compliant &nbsp;·&nbsp; Internal Use Only</span>
+</footer>
+
+<script>
+  const now = new Date();
+  document.getElementById('headerDate').textContent =
+    now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+</script>
+
+</body>
+</html>
